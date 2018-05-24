@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import SearchBar from '../SearchBar/SearchBar';
 import TrackList from '../TrackList/TrackList';
+import PlaylistSave from '../PlaylistSave/PlaylistSave';
 import Spotify from '../../util/Spotify';
 import logo from './logo.svg';
 import './App.css';
@@ -17,48 +18,6 @@ const scopes = 'user-library-modify playlist-modify-public playlist-modify-priva
 
 
 
-const searchTrack = {
-    trackName: "Tiny Dancer",
-    singer: "TimMcGraw",
-    album: "Love Story",
-    uri: "aaa"
-};
-let searchTracks = [
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-    searchTrack,
-];
-
-const playTrack = {
-    trackName: "Stronger",
-    singer: "Britney Spears",
-    album: "Oops!...I did It Again",
-};
-let playlist = [
-    playTrack,
-    playTrack,
-    playTrack,
-    playTrack,
-    playTrack
-];
-
-
 class App extends Component {
 
     constructor(props) {
@@ -66,24 +25,23 @@ class App extends Component {
         this.state = {
             searchText: 'Enter A Song Title',
             searchResults: [],
-            playlistName: '',
+            playlistName: 'New Playlist',
             playlist: [],
             playlistSaved: false,
             trackInProcess: {}
         }
-        this.searchByWindowLocation = this.searchByWindowLocation.bind(this);
-        this.searchByFetch = this.searchByFetch.bind(this);
+        this.search = this.search.bind(this);
         this.searchBarOnChange = this.searchBarOnChange.bind(this);
         this.trackActionOnClick = this.trackActionOnClick.bind(this);
-        //this.getAccessToken = this.getAccessToken.bind(this);
-        
+        this.playlistSaveOnClick = this.playlistSaveOnClick.bind(this);
+        this.playlistNameOnChange = this.playlistNameOnChange.bind(this);
 
     }
 
-    searchByWindowLocation() {
+    search() {
         //code for search tracks from Spotify.
         Spotify.getAccessToken();
-        let searchResults = Spotify.search(this.state.searchText).then(searchResultsRaw => {
+        Spotify.search(this.state.searchText).then(searchResultsRaw => {
             let tracks = [];
             //let track = {};
             searchResultsRaw.tracks.items.map(item => {
@@ -100,20 +58,13 @@ class App extends Component {
                 });
             })
             console.log(tracks);
-            return tracks;
+            
+            this.setState(
+                { 'searchResults': tracks }
+            );
         })
         //let searchResults = searchTracks;
         //let searchResults = Spotify.search(this.state.searchText);
-        console.log("searchResults");
-        console.log(searchResults);
-        this.setState(
-            { 'searchResults': searchResults }
-        );
-    }
-
-    searchByFetch() {
-        Spotify.getAccessTokenByFetch();
-        
         
     }
 
@@ -122,6 +73,20 @@ class App extends Component {
             {searchText: searchText}
         );
     }
+
+    playlistNameOnChange(e) {
+        const playlistName = e.target.value;
+        console.log(playlistName);
+        this.setState({
+            playlistName: playlistName
+        });
+    }
+
+    playlistSaveOnClick() {
+        console.log("playlistSaveOnClick");
+        Spotify.playlistSave(this.state.playlistName);
+    }
+
 
     trackActionOnClick(listType, track) {
         console.log("track=");
@@ -163,7 +128,7 @@ class App extends Component {
         <div>
             <h1>Ja<span className="highlight">mmm</span>ing</h1>
             <div className="App">
-                <SearchBar onClick={this.searchByWindowLocation} searchText={this.state.searchText} onChange={this.searchBarOnChange}/>
+                <SearchBar onClick={this.search} searchText={this.state.searchText} onChange={this.searchBarOnChange}/>
                 <div className="App-playlist">
                     <div className="SearchResults">
                         <h2>Results</h2>
@@ -172,11 +137,12 @@ class App extends Component {
                             trackActionOnClick={this.trackActionOnClick} />
                     </div>
                     <div className="Playlist">
-                        <input defaultValue='New Playlist' />
+                        <input defaultValue={this.state.playlistName} onChange={this.playlistNameOnChange}/>
                         <TrackList tracks={this.state.playlist} listType="Playlist"
                             trackAction='-'
                             trackActionOnClick={this.trackActionOnClick} />
-                    </div>
+                        <PlaylistSave onClick={this.playlistSaveOnClick}/>
+                    </div>             
                 </div>
             </div>
         </div>

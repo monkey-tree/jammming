@@ -18,13 +18,7 @@ const Spotify = {
             + '&scope=' + encodeURIComponent(scopes)
             + '&state=state=34fFs29kd09';
 
-        console.log('urlToFetch=' + urlToAuthorization);
-        console.log('accessToken=' + accessToken);
-
         let accessTokenInUrl = window.location.href.match(/access_token=([^&]*)/);
-
-        console.log('accessToken=' + accessToken);
-        console.log('expiresIn=' + expiresIn);
 
         if (accessToken !== '') {
             return accessToken;
@@ -39,33 +33,7 @@ const Spotify = {
         }
     },
 
-    getAccessTokenByFetch: async function () {
-        const urlToFetch = urlAuthentication + 'client_id=' + clientId
-            + '&response_type=code'
-            + '&redirect_uri=' + encodeURIComponent(redirectUri)
-            + '&scope=' + encodeURIComponent(scopes)
-            + '&state=state=34fFs29kd09';
-        console.log('urlToFetch=' + urlToFetch);
-
-        try {
-
-            let response = await fetch(urlToFetch);
-            console.log(response.ok);
-            if (response.ok) {
-                //let jsonResponse = await response.json();
-                //console.log("jsonResponse:")
-                //console.log(jsonResponse);
-                console.log(response);
-                return response;
-            }
-
-            throw new Error('Request failed!');
-
-        } catch (error) {
-            console.log(error.message);
-        }
-    },
-
+    
     search: async function (searchText) {
         const urlToFetch = urlSearch + searchText;
 
@@ -76,9 +44,6 @@ const Spotify = {
                 })
             if (response.ok) {
                 const jsonResponse = await response.json();
-                console.log("jsonResponse=");
-                console.log(jsonResponse);
-                
                 return jsonResponse;
             }
 
@@ -87,6 +52,10 @@ const Spotify = {
         } catch (error) {
             console.log(error.message);
         }
+    },
+
+    playlistSave: function (playlistName) {
+        console.log(playlistName);
     }
 
 }
