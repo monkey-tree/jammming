@@ -4,6 +4,15 @@ import './Track.css';
 
 
 class Track extends React.Component {
+    constructor(props) {
+        super(props);
+        this.handleOnClick = this.handleOnClick.bind(this);
+    }
+
+    handleOnClick() {
+        //console.log(this.props);
+        this.props.trackActionOnClick(this.props.listType, this.props.track);
+    }
 
     render() {
 
@@ -15,7 +24,7 @@ class Track extends React.Component {
                     <h3>{this.props.track.trackName}</h3>
                     <p>{`${this.props.track.singer} | ${this.props.track.album}`}</p>
                 </div>
-                <a className="Track-action">{this.props.track.trackAction}</a>
+                <a className="Track-action" onClick={this.handleOnClick}>{this.props.trackAction}</a>
             </div>
         );
     }
