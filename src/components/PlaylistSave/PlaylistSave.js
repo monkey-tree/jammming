@@ -7,7 +7,7 @@ class PlaylistSave extends React.Component {
     render() {
 
         return (
-            <a className="Playlist-save" onClick={this.props.onClick}>SAVE TO SPOTIFY</a>
+            <a className="Playlist-save" onClick={this.props.playlistSaveOnClick}>SAVE TO SPOTIFY</a>
         );
     }
 }

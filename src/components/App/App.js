@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import SearchBar from '../SearchBar/SearchBar';
+import SearchResults from '../SearchResults/SearchResults';
 import TrackList from '../TrackList/TrackList';
+import Playlist from '../Playlist/Playlist';
 import PlaylistSave from '../PlaylistSave/PlaylistSave';
 import Spotify from '../../util/Spotify';
 import logo from './logo.svg';
@@ -40,6 +42,7 @@ class App extends Component {
                     album: item.album.name,
                     uri: item.uri
                 });
+                return tracks;
             })
             
             this.setState(
@@ -56,9 +59,10 @@ class App extends Component {
         );
     }
 
-    playlistNameOnChange(e) {
-        const playlistName = e.target.value;
+    playlistNameOnChange(playlistName) {
+        
         //console.log(playlistName);
+
         this.setState({
             playlistName: playlistName
         });
@@ -98,7 +102,6 @@ class App extends Component {
         if (listType === "SearchResults") {
             this.setState((prevState, props) => {
                 let newPlaylist = prevState.playlist;
-                let existInPlaylist = false;
                 if (!newPlaylist.length) {
                     newPlaylist.push(track);
                 } else if (
@@ -107,7 +110,7 @@ class App extends Component {
                     })) {
                     newPlaylist.push(track);
                 }
-                console.log(newPlaylist);
+                //console.log(newPlaylist);
                 return { playlist: newPlaylist };
             });
         } else {
@@ -119,6 +122,7 @@ class App extends Component {
 
                         newPlaylist.push(playlistItem);
                     }
+                    return newPlaylist;
                 });
                 //console.log("newPlaylist:");
                 //console.log(newPlaylist)
@@ -136,19 +140,13 @@ class App extends Component {
             <div className="App">
                 <SearchBar onClick={this.search} searchText={this.state.searchText} onChange={this.searchBarOnChange}/>
                 <div className="App-playlist">
-                    <div className="SearchResults">
-                        <h2>Results</h2>
-                        <TrackList tracks={this.state.searchResults} listType="SearchResults"
-                            trackAction='+'
-                            trackActionOnClick={this.trackActionOnClick} />
-                    </div>
-                    <div className="Playlist">
-                        <input defaultValue={this.state.playlistName} onChange={this.playlistNameOnChange}/>
-                        <TrackList tracks={this.state.playlist} listType="Playlist"
-                            trackAction='-'
-                            trackActionOnClick={this.trackActionOnClick} />
-                        <PlaylistSave onClick={this.playlistSaveOnClick}/>
-                    </div>             
+                    <SearchResults tracks={this.state.searchResults} listType="SearchResults"
+                        trackActionOnClick={this.trackActionOnClick} />
+
+                    <Playlist playlistName={this.state.playlistName} playlistNameOnChange={this.playlistNameOnChange}
+                        tracks={this.state.playlist} listType="Playlist"
+                        trackActionOnClick={this.trackActionOnClick}
+                        playlistSaveOnClick={this.playlistSaveOnClick} />     
                 </div>
             </div>
         </div>

@@ -24,7 +24,7 @@ class Track extends React.Component {
                     <h3>{this.props.track.trackName}</h3>
                     <p>{`${this.props.track.singer} | ${this.props.track.album}`}</p>
                 </div>
-                <a className="Track-action" onClick={this.handleOnClick}>{this.props.trackAction}</a>
+                <a className="Track-action" onClick={this.handleOnClick}>{this.props.listType === "SearchResults" ? '+' : '-'}</a>
             </div>
         );
     }
