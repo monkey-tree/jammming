@@ -84,7 +84,7 @@ class App extends Component {
 
     playlistSaveOnClick() {
         console.log("playlistSaveOnClick");
-        Spotify.playlistSave(this.state.playlistName);
+        Spotify.playlistSave(this.state.playlistName, this.state.playlist);
     }
 
 
