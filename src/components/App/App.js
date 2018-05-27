@@ -7,16 +7,6 @@ import logo from './logo.svg';
 import './App.css';
 
 
-const clientId = '10e309ca50d3433381b35e25783422cc';
-const clientSecret = 'aacc6a2a72f84e2aa2befe4c0d4f9259';
-const urlAuthentication = 'https://accounts.spotify.com/authorize/?';
-const urlSearch = 'https://api.spotify.com/v1/search?type=track&q=';
-const redirectUri = 'http://localhost:3000/';
-const scopes = 'user-library-modify playlist-modify-public playlist-modify-private';
-//let accessToken = '';
-//let expiresIn = 0;
-
-
 
 class App extends Component {
 
@@ -38,18 +28,11 @@ class App extends Component {
     }
 
     search() {
-        //code for search tracks from Spotify.
-        Spotify.getAccessToken();
+
         Spotify.search(this.state.searchText).then(searchResultsRaw => {
-            console.log(searchResultsRaw);
+            //console.log(searchResultsRaw);
             let tracks = [];
-            //let track = {};
             searchResultsRaw.tracks.items.map(item => {
-                //track.id = item.id;
-                //track.trackName = item.name;
-                //track.singer = item.artists[0].name;
-                //track.album = item.album.name;
-                //console.log(track);
                 tracks.push({
                     id: item.id,
                     trackName: item.name,
@@ -58,14 +41,12 @@ class App extends Component {
                     uri: item.uri
                 });
             })
-            console.log(tracks);
             
             this.setState(
                 { 'searchResults': tracks }
             );
         })
-        //let searchResults = searchTracks;
-        //let searchResults = Spotify.search(this.state.searchText);
+
         
     }
 
@@ -77,15 +58,22 @@ class App extends Component {
 
     playlistNameOnChange(e) {
         const playlistName = e.target.value;
-        console.log(playlistName);
+        //console.log(playlistName);
         this.setState({
             playlistName: playlistName
         });
     }
 
     playlistSaveOnClick() {
-        console.log("playlistSaveOnClick");
-        Spotify.playlistSave(this.state.playlistName, this.state.playlist);
+        //console.log("playlistSaveOnClick");
+        Spotify.playlistSave(this.state.playlistName, this.state.playlist).then(() => {
+            this.setState(
+                {
+                    playlistName: 'New Playlist',
+                    playlist: []
+                }
+            )
+        });
 
         /*
         Spotify.savePlaylist(this.state.playlistName, this.state.playlist).then(() => {
@@ -97,27 +85,33 @@ class App extends Component {
             )
         })
         */
+        
     }
 
 
     trackActionOnClick(listType, track) {
-        console.log("track=");
-        console.log(track);
-        console.log("listType=");
-        console.log(listType);
+        //console.log("track=");
+        //console.log(track);
+        //console.log("listType=");
+        //console.log(listType);
+        
         if (listType === "SearchResults") {
-            console.log("searchResults trackActionOnClick");
             this.setState((prevState, props) => {
                 let newPlaylist = prevState.playlist;
-                console.log("newPlaylist:")
-                console.log(newPlaylist);               
-                newPlaylist.push(track);
+                let existInPlaylist = false;
+                if (!newPlaylist.length) {
+                    newPlaylist.push(track);
+                } else if (
+                    !prevState.playlist.find(playlistItem => {
+                        return playlistItem.uri === track.uri;
+                    })) {
+                    newPlaylist.push(track);
+                }
                 console.log(newPlaylist);
                 return { playlist: newPlaylist };
             });
         } else {
             this.setState((prevState, props) => {
-                console.log("playlist trackActionOnClick");
                 let newPlaylist = [];
                 prevState.playlist.map(playlistItem => {
                     console.log("playlistItem.uri=" + playlistItem.uri);
@@ -126,8 +120,8 @@ class App extends Component {
                         newPlaylist.push(playlistItem);
                     }
                 });
-                console.log("newPlaylist:");
-                console.log(newPlaylist)
+                //console.log("newPlaylist:");
+                //console.log(newPlaylist)
                 return { playlist: newPlaylist };
             });
 

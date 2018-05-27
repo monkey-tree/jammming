@@ -9,6 +9,8 @@ const redirectUri = 'http://localhost:3000/';
 const scopes = 'user-library-modify playlist-modify-public playlist-modify-private';
 let accessToken = '';
 let expiresIn = 0;
+let userId;
+let playlistIdd;
 
 
 
@@ -32,31 +34,40 @@ const Spotify = {
             window.history.pushState('Access Token', null, '/');
 
         } else {
-            window.location.href = urlToAuthorization;
+            return window.location.href = urlToAuthorization;
         }
     },
 
 
     search: async function (searchText) {
         const urlToFetch = urlSearch + searchText;
+        await Spotify.getAccessToken();
+       
+        if (accessToken !== '') {
+            try {
+                let response = await fetch(urlToFetch,
+                    {
+                        headers: { authorization: `Bearer ${accessToken}` }
+                    })
+                if (response.ok) {
+                    const jsonResponse = await response.json();
+                    return jsonResponse;
+                }
 
-        try {
-            let response = await fetch(urlToFetch,
-                {
-                    headers: { authorization: `Bearer ${accessToken}` }
-                })
-            if (response.ok) {
-                const jsonResponse = await response.json();
-                return jsonResponse;
+                throw new Error("Request failed!");
+
+            } catch (error) {
+                console.log(error.message);
             }
-
-            throw new Error("Request failed!");
-
-        } catch (error) {
-            console.log(error.message);
+        } else {
+            throw new Error("accessToken is not gotten!");
         }
+
+        
     },
 
+    //fetch chain to save playlist, works but not easy to read and structure smells.
+    //will try to make it more readible by split them into differnet functions and make a chain. 
     savePlaylist: async function (playlistName, playlist) {
         console.log(playlistName);
         if (!playlistName || !playlist.length) {
@@ -114,8 +125,8 @@ const Spotify = {
                 })
             if (response.ok) {
                 const jsonResponse = await response.json();
-                console.log(jsonResponse);
-                return jsonResponse;
+                userId = jsonResponse.id;         
+                return jsonResponse.id;
             }
 
             throw new Error("Request failed!");
@@ -125,12 +136,46 @@ const Spotify = {
         }
     },
 
-    createPlayList: async function (playlistName) {
+    createPlaylist: async function (userId, playlistName, headers) {
+        const urlCreatePlaylist = urlBase + 'users/' + userId + '/playlists';
 
+        try {
+            let response = await fetch(urlCreatePlaylist, {
+                headers: headers,
+                method: 'POST',
+                body: JSON.stringify({ name: playlistName })
+            })
+            if (response.ok) {
+                let jsonResponse = await response.json();
+                return jsonResponse.id;
+            }
+
+            throw new Error("Request failed!");
+        } catch (error) {
+            console.log(error.message);
+        }
     },
 
-    saveList: async function (playlistId) {
+    saveList: async function (userId, playlistId, playlist, headers) {
+        const urlSavePlaylist = urlBase + 'users/' + userId + '/playlists/' + playlistId + '/tracks';
+        const trackUris = playlist.map(track => track.uri);
+        
+        try {
+            let response = await fetch(urlSavePlaylist, {
+                headers: headers,
+                method: 'POST',
+                body: JSON.stringify({ uris: trackUris })
+            })
+            if (response.ok) {
+                //let jsonResponse = await response.json();
+                return;
+            }
 
+            throw new Error("Request failed!");
+
+        } catch (error) {
+            console.log(error.message);
+        }
     },
 
     
@@ -140,9 +185,11 @@ const Spotify = {
         let headers = {
             authorization: `Bearer ${accessToken}`
         };
-        return Spotify.getUserId.then(userId => {
-            //createPlayList(userId, playlistName);
-            console.log('userId=' + userId);
+       
+        return Spotify.getUserId(headers).then(userId => {
+            return Spotify.createPlaylist(userId, playlistName, headers);
+        }).then(playlistId => {
+            return Spotify.saveList(userId, playlistId, playlist, headers);
         });
 
     },
