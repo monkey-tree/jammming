@@ -27,7 +27,6 @@ class App extends Component {
             searchResults: [],
             playlistName: 'New Playlist',
             playlist: [],
-            playlistSaved: false,
             trackInProcess: {}
         }
         this.search = this.search.bind(this);
@@ -42,6 +41,7 @@ class App extends Component {
         //code for search tracks from Spotify.
         Spotify.getAccessToken();
         Spotify.search(this.state.searchText).then(searchResultsRaw => {
+            console.log(searchResultsRaw);
             let tracks = [];
             //let track = {};
             searchResultsRaw.tracks.items.map(item => {
@@ -54,7 +54,8 @@ class App extends Component {
                     id: item.id,
                     trackName: item.name,
                     singer: item.artists[0].name,
-                    album: item.album.name
+                    album: item.album.name,
+                    uri: item.uri
                 });
             })
             console.log(tracks);
@@ -85,6 +86,17 @@ class App extends Component {
     playlistSaveOnClick() {
         console.log("playlistSaveOnClick");
         Spotify.playlistSave(this.state.playlistName, this.state.playlist);
+
+        /*
+        Spotify.savePlaylist(this.state.playlistName, this.state.playlist).then(() => {
+            this.setState(
+                {
+                    playlistName: 'New Playlist',
+                    playlist: []
+                }
+            )
+        })
+        */
     }
 
 

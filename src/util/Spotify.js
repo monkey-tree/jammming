@@ -9,9 +9,7 @@ const redirectUri = 'http://localhost:3000/';
 const scopes = 'user-library-modify playlist-modify-public playlist-modify-private';
 let accessToken = '';
 let expiresIn = 0;
-let headers = {
-    authorization: `Bearer ${accessToken}`
-};
+
 
 
 const Spotify = {
@@ -38,14 +36,14 @@ const Spotify = {
         }
     },
 
-    
+
     search: async function (searchText) {
         const urlToFetch = urlSearch + searchText;
 
         try {
             let response = await fetch(urlToFetch,
                 {
-                    headers: {authorization: `Bearer ${accessToken}`}
+                    headers: { authorization: `Bearer ${accessToken}` }
                 })
             if (response.ok) {
                 const jsonResponse = await response.json();
@@ -59,8 +57,56 @@ const Spotify = {
         }
     },
 
-    getUserId: async function () {
+    savePlaylist: async function (playlistName, playlist) {
+        console.log(playlistName);
+        if (!playlistName || !playlist.length) {
+            return;
+        }
+        Spotify.getAccessToken;
+        let headers = {
+            authorization: `Bearer ${accessToken}`
+        };
+        const trackUris = playlist.map(track => track.uri);
+        let userId;
+        try {
+            fetch(urlGetUserId, { headers: headers }).then(response => {
+                return response.json();
+            })
+                .then(jsonResponse => {
+                    userId = jsonResponse.id;
+                    const urlCreatePlaylist = urlBase + 'users/' + userId + '/playlists';
+                    return fetch(urlCreatePlaylist, {
+                        headers: headers,
+                        method: 'POST',
+                        body: JSON.stringify({ name: playlistName })
+                    })
+                }).then(response => {
 
+                  return response.json();
+                }).then(jsonResponse => {
+                    const playlistId = jsonResponse.id;
+                    const urlSavePlaylist = urlBase + 'users/' + userId + '/playlists/' + playlistId + '/tracks';
+                    return fetch(urlSavePlaylist, {
+                        headers: headers,
+                        method: 'POST',
+                        body: JSON.stringify({ uris: trackUris })
+                    });
+                });
+        
+
+        } catch (error) {
+            console.log(error.message);
+        }
+        
+    },
+
+    // following code are for trying to have more try/catch in each REST calls.
+    // through fetch.then.then could work it seems try catch is missed
+    // so try to add try catch to each REST call by creating getUserId function, createPlayList, saveList function firstly
+    // and then try to use this.getUserId.then(this.createPlaylist).then(this.saveList) pattern
+
+    getUserId: async function (headers) {
+        
         try {
             let response = await fetch(urlGetUserId,
                 {
@@ -83,16 +129,25 @@ const Spotify = {
 
     },
 
+    saveList: async function (playlistId) {
 
+    },
 
+    
     playlistSave: async function (playlistName, playlist) {
         console.log(playlistName);
-        return this.getUserId.then(userId => {
+        Spotify.getAccessToken;
+        let headers = {
+            authorization: `Bearer ${accessToken}`
+        };
+        return Spotify.getUserId.then(userId => {
             //createPlayList(userId, playlistName);
             console.log('userId=' + userId);
         });
 
-    }
+    },
+
+    
 
 }
 
