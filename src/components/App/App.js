@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import SearchBar from '../SearchBar/SearchBar';
+import SearchResults from '../SearchResults/SearchResults';
 import TrackList from '../TrackList/TrackList';
+import Playlist from '../Playlist/Playlist';
 import PlaylistSave from '../PlaylistSave/PlaylistSave';
 import Spotify from '../../util/Spotify';
 import logo from './logo.svg';
@@ -57,9 +59,10 @@ class App extends Component {
         );
     }
 
-    playlistNameOnChange(e) {
-        const playlistName = e.target.value;
+    playlistNameOnChange(playlistName) {
+        
         //console.log(playlistName);
+
         this.setState({
             playlistName: playlistName
         });
@@ -137,17 +140,13 @@ class App extends Component {
             <div className="App">
                 <SearchBar onClick={this.search} searchText={this.state.searchText} onChange={this.searchBarOnChange}/>
                 <div className="App-playlist">
-                    <div className="SearchResults">
-                        <h2>Results</h2>
-                        <TrackList tracks={this.state.searchResults} listType="SearchResults"
-                            trackActionOnClick={this.trackActionOnClick} />
-                    </div>
-                    <div className="Playlist">
-                        <input defaultValue={this.state.playlistName} onChange={this.playlistNameOnChange}/>
-                        <TrackList tracks={this.state.playlist} listType="Playlist"
-                            trackActionOnClick={this.trackActionOnClick} />
-                        <PlaylistSave onClick={this.playlistSaveOnClick}/>
-                    </div>             
+                    <SearchResults tracks={this.state.searchResults} listType="SearchResults"
+                        trackActionOnClick={this.trackActionOnClick} />
+
+                    <Playlist playlistName={this.state.playlistName} playlistNameOnChange={this.playlistNameOnChange}
+                        tracks={this.state.playlist} listType="Playlist"
+                        trackActionOnClick={this.trackActionOnClick}
+                        playlistSaveOnClick={this.playlistSaveOnClick} />     
                 </div>
             </div>
         </div>

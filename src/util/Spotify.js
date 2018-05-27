@@ -178,8 +178,9 @@ const Spotify = {
 
     
     playlistSave: async function (playlistName, playlist) {
-        console.log(playlistName);
+        //console.log(playlistName);
         await Spotify.getAccessToken();
+        //console.log("accessToken=" + accessToken);
         let headers = {
             authorization: `Bearer ${accessToken}`
         };
