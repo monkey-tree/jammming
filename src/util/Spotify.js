@@ -1,6 +1,5 @@
 // JavaScript source code
 const clientId = '10e309ca50d3433381b35e25783422cc';
-const clientSecret = 'aacc6a2a72f84e2aa2befe4c0d4f9259';
 const urlAuthentication = 'https://accounts.spotify.com/authorize/?';
 const urlBase = 'https://api.spotify.com/v1/';
 const urlSearch = 'https://api.spotify.com/v1/search?type=track&q=';
@@ -10,7 +9,6 @@ const scopes = 'user-library-modify playlist-modify-public playlist-modify-priva
 let accessToken = '';
 let expiresIn = 0;
 let userId;
-let playlistIdd;
 
 
 
@@ -73,7 +71,7 @@ const Spotify = {
         if (!playlistName || !playlist.length) {
             return;
         }
-        Spotify.getAccessToken;
+        Spotify.getAccessToken();
         let headers = {
             authorization: `Bearer ${accessToken}`
         };
@@ -181,7 +179,7 @@ const Spotify = {
     
     playlistSave: async function (playlistName, playlist) {
         console.log(playlistName);
-        Spotify.getAccessToken;
+        await Spotify.getAccessToken();
         let headers = {
             authorization: `Bearer ${accessToken}`
         };

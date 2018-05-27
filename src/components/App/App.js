@@ -40,6 +40,7 @@ class App extends Component {
                     album: item.album.name,
                     uri: item.uri
                 });
+                return tracks;
             })
             
             this.setState(
@@ -98,7 +99,6 @@ class App extends Component {
         if (listType === "SearchResults") {
             this.setState((prevState, props) => {
                 let newPlaylist = prevState.playlist;
-                let existInPlaylist = false;
                 if (!newPlaylist.length) {
                     newPlaylist.push(track);
                 } else if (
@@ -107,7 +107,7 @@ class App extends Component {
                     })) {
                     newPlaylist.push(track);
                 }
-                console.log(newPlaylist);
+                //console.log(newPlaylist);
                 return { playlist: newPlaylist };
             });
         } else {
@@ -119,6 +119,7 @@ class App extends Component {
 
                         newPlaylist.push(playlistItem);
                     }
+                    return newPlaylist;
                 });
                 //console.log("newPlaylist:");
                 //console.log(newPlaylist)
@@ -139,13 +140,11 @@ class App extends Component {
                     <div className="SearchResults">
                         <h2>Results</h2>
                         <TrackList tracks={this.state.searchResults} listType="SearchResults"
-                            trackAction='+'
                             trackActionOnClick={this.trackActionOnClick} />
                     </div>
                     <div className="Playlist">
                         <input defaultValue={this.state.playlistName} onChange={this.playlistNameOnChange}/>
                         <TrackList tracks={this.state.playlist} listType="Playlist"
-                            trackAction='-'
                             trackActionOnClick={this.trackActionOnClick} />
                         <PlaylistSave onClick={this.playlistSaveOnClick}/>
                     </div>             
