@@ -6,6 +6,7 @@ const urlSearch = 'https://api.spotify.com/v1/search?type=track&q=';
 const urlGetUserId = 'https://api.spotify.com/v1/me';
 const redirectUri = 'http://localhost:3000/';
 const scopes = 'user-library-modify playlist-modify-public playlist-modify-private';
+let state = {};
 let accessToken = '';
 let expiresIn = 0;
 let userId;
@@ -13,13 +14,14 @@ let userId;
 
 
 const Spotify = {
-
-    getAccessToken: function () {
+    //add state which include searchText into the authentication url
+    //when redirecting back after authentication we could extract searchText from state
+    getAccessToken: function (state) {
         const urlToAuthorization = urlAuthentication + 'client_id=' + clientId
             + '&response_type=token'
             + '&redirect_uri=' + encodeURIComponent(redirectUri)
             + '&scope=' + encodeURIComponent(scopes)
-            + '&state=state=34fFs29kd09';
+            + '&state=' + encodeURIComponent(state);    
 
         let accessTokenInUrl = window.location.href.match(/access_token=([^&]*)/);
 
@@ -32,6 +34,7 @@ const Spotify = {
             window.history.pushState('Access Token', null, '/');
 
         } else {
+            
             return window.location.href = urlToAuthorization;
         }
     },
@@ -39,7 +42,15 @@ const Spotify = {
 
     search: async function (searchText) {
         const urlToFetch = urlSearch + searchText;
-        await Spotify.getAccessToken();
+
+        //add searchText as a state and add into a json struction for getAccessToken
+        state = JSON.stringify({
+            searchText: searchText
+        });
+
+        await Spotify.getAccessToken(state);
+        //console.log(accessToken);
+        //console.log(urlToFetch);
        
         if (accessToken !== '') {
             try {

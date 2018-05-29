@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import SearchBar from '../SearchBar/SearchBar';
 import SearchResults from '../SearchResults/SearchResults';
-import TrackList from '../TrackList/TrackList';
 import Playlist from '../Playlist/Playlist';
-import PlaylistSave from '../PlaylistSave/PlaylistSave';
 import Spotify from '../../util/Spotify';
 import logo from './logo.svg';
 import './App.css';
@@ -23,14 +21,36 @@ class App extends Component {
         }
         this.search = this.search.bind(this);
         this.searchBarOnChange = this.searchBarOnChange.bind(this);
+        this.searchBarOnKeyDown = this.searchBarOnKeyDown.bind(this);
         this.trackActionOnClick = this.trackActionOnClick.bind(this);
         this.playlistSaveOnClick = this.playlistSaveOnClick.bind(this);
         this.playlistNameOnChange = this.playlistNameOnChange.bind(this);
 
     }
 
-    search() {
+    componentDidMount() {
+        //extract state from url to get the searchText input before authentication redirecting.
+        const state = window.location.href.match(/state=([^&]*)/);
+        
+        if (state) {
+            let stateJSON = JSON.parse(decodeURIComponent(state[0].split('=')[1]));
+            this.setState({
+                searchText: stateJSON.searchText
+            });
+        } else {
+            this.setState({
+                searchText: 'Enter A Song Title'
+            });
+        }
 
+        
+       
+    }
+
+
+ 
+    search() {
+        //console.log(this.state);
         Spotify.search(this.state.searchText).then(searchResultsRaw => {
             //console.log(searchResultsRaw);
             let tracks = [];
@@ -57,6 +77,12 @@ class App extends Component {
         this.setState(
             {searchText: searchText}
         );
+    }
+
+    searchBarOnKeyDown(keynum) {
+        if (keynum === 13) {
+            this.search();
+        }
     }
 
     playlistNameOnChange(playlistName) {
@@ -138,7 +164,9 @@ class App extends Component {
         <div>
             <h1>Ja<span className="highlight">mmm</span>ing</h1>
             <div className="App">
-                <SearchBar onClick={this.search} searchText={this.state.searchText} onChange={this.searchBarOnChange}/>
+                <SearchBar searchBarOnClick={this.search}
+                    searchBarOnKeyDown={this.searchBarOnKeyDown}
+                    searchText={this.state.searchText} onChange={this.searchBarOnChange} />
                 <div className="App-playlist">
                     <SearchResults tracks={this.state.searchResults} listType="SearchResults"
                         trackActionOnClick={this.trackActionOnClick} />
@@ -149,6 +177,8 @@ class App extends Component {
                         playlistSaveOnClick={this.playlistSaveOnClick} />     
                 </div>
             </div>
+            
+
         </div>
     );
   }
