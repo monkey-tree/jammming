@@ -49,8 +49,7 @@ const Spotify = {
         });
 
         await Spotify.getAccessToken(state);
-        //console.log(accessToken);
-        //console.log(urlToFetch);
+        
        
         if (accessToken !== '') {
             try {

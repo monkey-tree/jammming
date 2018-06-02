@@ -1,12 +1,47 @@
 import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import SearchBar from '../SearchBar/SearchBar';
 import SearchResults from '../SearchResults/SearchResults';
 import Playlist from '../Playlist/Playlist';
+import ProgressBar from '../ProgressBar/ProgressBar';
 import Spotify from '../../util/Spotify';
 import logo from './logo.svg';
 import './App.css';
 
+const appRoot = document.getElementById('root');
+const modalRoot = document.getElementById('modal-root');
 
+
+class Modal extends React.Component {
+    constructor(props) {
+        super(props);
+        // Create a div that we'll render the modal into. Because each
+        // Modal component has its own element, we can render multiple
+        // modal components into the modal container.
+        this.el = document.createElement('div');
+    }
+
+    componentDidMount() {
+        // Append the element into the DOM on mount. We'll render
+        // into the modal container element (see the HTML tab).
+        modalRoot.appendChild(this.el);
+    }
+
+    componentWillUnmount() {
+        // Remove the element from the DOM when we unmount
+        modalRoot.removeChild(this.el);
+    }
+
+    render() {
+        // Use a portal to render the children into the element
+        return ReactDOM.createPortal(
+            // Any valid React child: JSX, strings, arrays, etc.
+            this.props.children,
+            // A DOM element
+            this.el,
+        );
+    }
+}
 
 class App extends Component {
 
@@ -17,6 +52,8 @@ class App extends Component {
             searchResults: [],
             playlistName: 'New Playlist',
             playlist: [],
+            playlistSaveProgress: 0,
+            progressBarOpen: false,
             trackInProcess: {}
         }
         this.search = this.search.bind(this);
@@ -25,8 +62,13 @@ class App extends Component {
         this.trackActionOnClick = this.trackActionOnClick.bind(this);
         this.playlistSaveOnClick = this.playlistSaveOnClick.bind(this);
         this.playlistNameOnChange = this.playlistNameOnChange.bind(this);
+        
+        this.el = document.createElement('div');
+    
 
     }
+
+    component
 
     componentDidMount() {
         //extract state from url to get the searchText input before authentication redirecting.
@@ -43,6 +85,10 @@ class App extends Component {
             });
         }
 
+        if (this.state.progressBarOpen) {
+            console.log("append modal child");
+            modalRoot.appendChild(this.el);
+        }
         
        
     }
@@ -50,9 +96,8 @@ class App extends Component {
 
  
     search() {
-        //console.log(this.state);
+        
         Spotify.search(this.state.searchText).then(searchResultsRaw => {
-            //console.log(searchResultsRaw);
             let tracks = [];
             searchResultsRaw.tracks.items.map(item => {
                 tracks.push({
@@ -86,44 +131,45 @@ class App extends Component {
     }
 
     playlistNameOnChange(playlistName) {
-        
-        //console.log(playlistName);
-
+     
         this.setState({
             playlistName: playlistName
         });
     }
 
+   
+
     playlistSaveOnClick() {
-        //console.log("playlistSaveOnClick");
+    
+        if (this.state.playlistSaveProgress === 0 && !this.state.progressBarOpen) {
+            
+            this.setState({
+                progressBarOpen: true
+            });
+        } 
+
+
         Spotify.playlistSave(this.state.playlistName, this.state.playlist).then(() => {
+            
             this.setState(
                 {
                     playlistName: 'New Playlist',
-                    playlist: []
+                    playlist: [],
+                    playlistSaveProgress: 0,
+                    progressBarOpen: false
+                    
                 }
             )
+            
+            
         });
 
-        /*
-        Spotify.savePlaylist(this.state.playlistName, this.state.playlist).then(() => {
-            this.setState(
-                {
-                    playlistName: 'New Playlist',
-                    playlist: []
-                }
-            )
-        })
-        */
         
     }
 
 
     trackActionOnClick(listType, track) {
-        //console.log("track=");
-        //console.log(track);
-        //console.log("listType=");
-        //console.log(listType);
+        
         
         if (listType === "SearchResults") {
             this.setState((prevState, props) => {
@@ -136,7 +182,7 @@ class App extends Component {
                     })) {
                     newPlaylist.push(track);
                 }
-                //console.log(newPlaylist);
+                
                 return { playlist: newPlaylist };
             });
         } else {
@@ -150,8 +196,7 @@ class App extends Component {
                     }
                     return newPlaylist;
                 });
-                //console.log("newPlaylist:");
-                //console.log(newPlaylist)
+                
                 return { playlist: newPlaylist };
             });
 
@@ -160,48 +205,40 @@ class App extends Component {
     }
 
     render() {
-    return (
-        <div>
-            <h1>Ja<span className="highlight">mmm</span>ing</h1>
-            <div className="App">
-                <SearchBar searchBarOnClick={this.search}
-                    searchBarOnKeyDown={this.searchBarOnKeyDown}
-                    searchText={this.state.searchText} onChange={this.searchBarOnChange} />
-                <div className="App-playlist">
-                    <SearchResults tracks={this.state.searchResults} listType="SearchResults"
-                        trackActionOnClick={this.trackActionOnClick} />
 
-                    <Playlist playlistName={this.state.playlistName} playlistNameOnChange={this.playlistNameOnChange}
-                        tracks={this.state.playlist} listType="Playlist"
-                        trackActionOnClick={this.trackActionOnClick}
-                        playlistSaveOnClick={this.playlistSaveOnClick} />     
+        const progressBar = this.state.progressBarOpen ? (
+            <Modal>
+                <div className="modal">
+                    <ProgressBar id="progressBar" playlistName={this.state.playlistName} type="dashboard" playlistSaveProgress={this.state.playlistSaveProgress}/>
                 </div>
-            </div>
-            
+            </Modal>
+        ): null;
 
-        </div>
-    );
-  }
-}
-
-export default App;
-
-
-
-/*
-class App extends Component {
-    render() {
         return (
-            <div className="App">
-                <header className="App-header">
-                    <img src={logo} className="App-logo" alt="logo" />
-                    <h1 className="App-title">Welcome to React</h1>
-                </header>
-                <p className="App-intro">
-                    To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+            <div>
+                <h1>Ja<span className="highlight">mmm</span>ing</h1>
+                <div className="App">
+                    <SearchBar searchBarOnClick={this.search}
+                        searchBarOnKeyDown={this.searchBarOnKeyDown}
+                        searchText={this.state.searchText} onChange={this.searchBarOnChange} />
+                    <div className="App-playlist">
+                        <SearchResults tracks={this.state.searchResults} listType="SearchResults"
+                            trackActionOnClick={this.trackActionOnClick} />
+                            
+                        <Playlist playlistName={this.state.playlistName} playlistNameOnChange={this.playlistNameOnChange}
+                            tracks={this.state.playlist} listType="Playlist"
+                            trackActionOnClick={this.trackActionOnClick}
+                            playlistSaveOnClick={this.playlistSaveOnClick} />
+                        {progressBar}
+
+                    </div>
+                </div>
+                
+
             </div>
         );
     }
 }
-*/
+
+export default App;
+
