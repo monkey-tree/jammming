@@ -1,0 +1,6 @@
+PoCs of 3 feature requests are completed and only one design doc is provided due to time limitation:
+1. Pressing enter triggers a search
+2. Add a loading screen while playlist is saving
+https://docs.google.com/document/d/1BdC71tlE0fclaFUp8kK0OhUn6UoUEjhgCSUg1bYNImU/edit?usp=sharing
+3. After user redirect on login, restoring the search term from before the redirect
+
