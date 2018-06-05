@@ -3,45 +3,17 @@ import ReactDOM from 'react-dom';
 import SearchBar from '../SearchBar/SearchBar';
 import SearchResults from '../SearchResults/SearchResults';
 import Playlist from '../Playlist/Playlist';
+import Modal from '../Modal/Modal';
 import ProgressBar from '../ProgressBar/ProgressBar';
 import Spotify from '../../util/Spotify';
 import logo from './logo.svg';
 import './App.css';
 
-const appRoot = document.getElementById('root');
-const modalRoot = document.getElementById('modal-root');
+//const appRoot = document.getElementById('root');
+//const modalRoot = document.getElementById('modal-root');
 
 
-class Modal extends React.Component {
-    constructor(props) {
-        super(props);
-        // Create a div that we'll render the modal into. Because each
-        // Modal component has its own element, we can render multiple
-        // modal components into the modal container.
-        this.el = document.createElement('div');
-    }
 
-    componentDidMount() {
-        // Append the element into the DOM on mount. We'll render
-        // into the modal container element (see the HTML tab).
-        modalRoot.appendChild(this.el);
-    }
-
-    componentWillUnmount() {
-        // Remove the element from the DOM when we unmount
-        modalRoot.removeChild(this.el);
-    }
-
-    render() {
-        // Use a portal to render the children into the element
-        return ReactDOM.createPortal(
-            // Any valid React child: JSX, strings, arrays, etc.
-            this.props.children,
-            // A DOM element
-            this.el,
-        );
-    }
-}
 
 class App extends Component {
 
@@ -84,13 +56,7 @@ class App extends Component {
                 searchText: 'Enter A Song Title'
             });
         }
-
-        if (this.state.progressBarOpen) {
-            console.log("append modal child");
-            modalRoot.appendChild(this.el);
-        }
-        
-       
+    
     }
 
 
