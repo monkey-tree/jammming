@@ -9,11 +9,6 @@ import Spotify from '../../util/Spotify';
 import logo from './logo.svg';
 import './App.css';
 
-//const appRoot = document.getElementById('root');
-//const modalRoot = document.getElementById('modal-root');
-
-
-
 
 class App extends Component {
 
